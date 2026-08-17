@@ -1,5 +1,5 @@
 from datetime import datetime
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from typing import Any
 
 # Create an instance of FastAPI
@@ -40,3 +40,11 @@ Campaigns
 @app.get("/campaigns")
 async def read_campaigns():
     return {"campaigns": data}
+
+
+@app.get("/campaigns/{id}")
+async def read_campaign(id: int):
+    for campaign in data:
+        if campaign.get("campaign_id") == id:
+            return {"campaign": campaign}
+    raise HTTPException(status_code=404)
