@@ -51,7 +51,7 @@ async def read_campaign(id: int):
     raise HTTPException(status_code=404)
 
 
-@app.post("/campaigns")
+@app.post("/campaigns", status_code=201)
 async def create_campaign(body: dict[str, Any]):
     new: Any = {
         "campaign_id": randint(100, 1000),
