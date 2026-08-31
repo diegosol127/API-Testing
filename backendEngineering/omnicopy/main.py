@@ -1,10 +1,56 @@
-from datetime import datetime
-from fastapi import FastAPI, HTTPException, Response
+from contextlib import asynccontextmanager
+from datetime import datetime, timezone
+from fastapi import Depends, FastAPI, HTTPException, Response
 from random import randint
-from typing import Any
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+from typing import Annotated, Any
 
-# Create an instance of FastAPI
-app = FastAPI(root_path="/api/v1")
+
+class Campaign(SQLModel, table=True):
+    campaign_id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    due_date: datetime | None = Field(default=None, index=True)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), nullable=True, index=True
+    )
+
+
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, connect_args=connect_args)
+
+
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
+    with Session(engine) as session:
+        if not session.exec(select(Campaign)).first():
+            session.add_all(
+                [
+                    Campaign(name="Summer Launch", due_date=datetime.now()),
+                    Campaign(name="Black Friday", due_date=datetime.now()),
+                ]
+            )
+            session.commit()
+    yield
+
+
+# Create an instance of FastAPI app
+app = FastAPI(root_path="/api/v1", lifespan=lifespan)
 
 
 # Decorator describing how we associate a webpage visit to a certain function
