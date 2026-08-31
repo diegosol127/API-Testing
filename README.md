@@ -54,6 +54,6 @@ fastapi dev main.py
 You can inspect the contents of the SQL database by running `sqlite3 database.db` and then
 
 ```sql
-SELECT * from campaign
+SELECT * from campaign;
 ```
 
