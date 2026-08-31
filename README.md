@@ -26,3 +26,34 @@ Goals
 
 Project outline
 - App that will help with copy writing content for marketing campaigns
+
+**Launching the Web Server**
+
+1. Navigate to the project.
+
+```bash
+cd backendEngineering/omnicopy
+```
+
+2. Activate the Python environment.
+
+```bash
+. ./.venv/bin/activate
+```
+
+3. Launch FastAPI.
+
+```bash
+fastapi dev main.py
+```
+
+4. Open browser to the server documentation page to inspect and test the interface.
+
+**SQL Database**
+
+You can inspect the contents of the SQL database by running `sqlite3 database.db` and then
+
+```sql
+SELECT * from campaign
+```
+
